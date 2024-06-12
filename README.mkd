@@ -1,25 +1,21 @@
-
-# COM3505 Lab Assessment 2
-
-
 # Bluetooth ESP32 Macro-pad with volume control
 Below is the macropad.
 <div style="text-align: center;">
-  <img src="/LA2/Documentation/device.jpg" alt="ESP32 Macropad" width="600px">
+  <img src="/Documentation/device.jpg" alt="ESP32 Macropad" width="600px">
 </div>
 
 This is the documentation for an ESP32 macropad device with volume control, it is controlled over Wi-Fi using an interface to update the values of each key. The volume level is set using an ultrasonic sensor, and a short vibration happens to indicate volume has been set. The macropad also has an OLED screen attached for visual feedback.
 
 ## Video Demonstration
 
-Here is a video demonstration of the ESP32 Macropad [ESP32 Macropad Demo](/LA2/Documentation/ESP32-Macropad-demo-video.mp4) or you can view it on this [Google Drive link](https://drive.google.com/file/d/1qyfJMB_tszr_BFeFrze45emmnz3CZ4gP/view?usp=sharing)
+Here is a video demonstration of the ESP32 Macropad [ESP32 Macropad Demo](/Documentation/ESP32-Macropad-demo-video.mp4) or you can view it on this [Google Drive link](https://drive.google.com/file/d/1qyfJMB_tszr_BFeFrze45emmnz3CZ4gP/view?usp=sharing)
 
 ## Software Design
 The software is composed of two components, the Interface and the Arduino code.
 
 ### Interface Design
 <div style="text-align: center;">
-  <img src="/LA2/Documentation/interface_design.png" alt="Interface Design" width="600px">
+  <img src="/Documentation/interface_design.png" alt="Interface Design" width="600px">
 </div>
 
 The web interface must be intuitive and easy to use whilst also providing users woth visual feedback. The design must also be simple and only include necessary features, no superfluous features should be on the interface and any features added should have a minimal design that is accessible. The interface was designed to have these features: Update Button for updating the values of the macropad keys as well as a volume slider to show the volume level. The user should have control over the the key values as well as the volume level, hence the user can change and update keys and volume appropriately. A slider is used to provide a visual indication and so that the volume remains within limits (0-100%).
@@ -77,13 +73,13 @@ Lastly, please refer to the hardware documentation or pinout diagrams of your sp
 The macropad makes use of key mapping to determine which key is being pressed.
 
 <div style="text-align: center;">
-  <img src="/LA2/Documentation/key setup.png" alt="Hotswap socket setup" width="300px">
+  <img src="/Documentation/key setup.png" alt="Hotswap socket setup" width="300px">
 </div>
 
 The above image shows how each hotswap socket is setup. These sockets allows insertion of switches without soldering. The diode(marked side touches the wire that connects to the GPIO pin) touches the row wire. The row wire connects all switches (through their diodes) in the same row to a single input pin on the microcontroller. This setup helps in managing the matrix efficiently, as each row can be scanned to detect which key was pressed. The other pin of each switch (not connected to a diode) is connected together using another wire, Column wire. The column wire connects all the switches in the same column directly to another GPIO pin on the microcontroller. This setup can be seen in the image below.
 
 <div style="text-align: center;">
-  <img src="/LA2/Documentation/keys_placed.JPG" alt="Keys setup" width="300px">
+  <img src="/Documentation/keys_placed.JPG" alt="Keys setup" width="300px">
 </div>
 
 Note: It is cruical that the diode touches the row wire, can the tiny wire that connects to the switch also touches the column wire at all times. Also important to make sure is that none of the wires for each key touches the wires of another key as this will cause interruption of signals being sent.
@@ -95,12 +91,12 @@ The ultrasonic sensor is attatched onto the 90 degree male header pins on the OL
 The Vibration motor is attached onto one of the input pins on the OLED featherwing and the other is connected to the ground pin. The leg of the motor that connects to this input pin also has a 100Ω resistor attached to it in series.
 
 <div style="text-align: center;">
-  <img src="/LA2/Documentation/sensor_and_motor.png" alt="ultransonic_sensor_and_vibration_motor_setup" width="300px">
+  <img src="/Documentation/sensor_and_motor.png" alt="ultransonic_sensor_and_vibration_motor_setup" width="300px">
 </div>
 
 The ultrasonic sensor and vibration motor can easily fit within the chassis due to the chasis design and sticky bottom of the vibration motor as shown below.
 <div style="text-align: center;">
-  <img src="/LA2/Documentation/sensor_motor_in_chasis.png" alt="ultrasonic_sensor_vibe_motor_in_chasis" width="300px">
+  <img src="/Documentation/sensor_motor_in_chasis.png" alt="ultrasonic_sensor_vibe_motor_in_chasis" width="300px">
 </div>
 
 
@@ -117,30 +113,30 @@ The design is made up of 5 different components:
 The macropad case contains the sensor, motor, and all the keys. The design is compact, yet it has enough space to allow for each wire connections. The design of the Macropad case features a partial wall on one side to facilitate the routing of wires from this case to the ESP32 and OLED case.The design also required to accurately size the cutout for the ultrasonic sensor to ensure a snug fit without it being too loose.
 
 <div style="text-align: center;">
-  <img src="/LA2/Documentation/macropad_case_top_view.png" alt="macropad_case_top_view" width="300px">
-  <img src="/LA2/Documentation/macropad_case_side_view.png" alt="macropad_case_side_view" width="300px">
+  <img src="/Documentation/macropad_case_top_view.png" alt="macropad_case_top_view" width="300px">
+  <img src="/Documentation/macropad_case_side_view.png" alt="macropad_case_side_view" width="300px">
 </div>
 
 **ESP32 and OLED Case**
 This second case houses the ESP32 and the OLED, which is mounted on top. It features a rectangular cutout to ensure the OLED screen is visible. Additionally, this case includes a partial wall on the side that connects to the Macropad case, designed to facilitate wire routing between the two cases. It was also crucial to accurately size the cutout for the USB-C port on the ESP32 to ensure a snug fit for the cable without it being too loose.
 <div style="text-align: center;">
-  <img src="/LA2/Documentation/esp32_case_top.png" alt="esp32_case_top" width="300px">
-  <img src="/LA2/Documentation/esp_case_side.png" alt="esp_case_side" width="250px">
+  <img src="/Documentation/esp32_case_top.png" alt="esp32_case_top" width="300px">
+  <img src="/Documentation/esp_case_side.png" alt="esp_case_side" width="250px">
 </div>
 
 **Hotswap sockets**
 There were three hotswap socket designs for for Cherry MX switches. Version 1 was very ineffective as the diode and the wires could not be connected properly. Version 2 was better but still less effective as it required multiple parts(the socket and 2 covers to hold the wires in place). However, everytime a key got pressed the parts would come apart as they were just fitted together or the wires within the hotswap socket wouldnt touch as appropriate causing loss of input signals. So Version 2 was redesigned to be Version 3, as this design ensure that the wires keep intact and touch as appropriate and also that the parts do not come apart.
 <div style="text-align: center;">
-  <img src="/LA2/Documentation/hotswap_v1_top.png" alt="Top View of Hotswap V1" width="250px">
-  <img src="/LA2/Documentation/hotswap_v1_bottom.png" alt="Bottom View of Hotswap V1" width="250px">
+  <img src="/Documentation/hotswap_v1_top.png" alt="Top View of Hotswap V1" width="250px">
+  <img src="/Documentation/hotswap_v1_bottom.png" alt="Bottom View of Hotswap V1" width="250px">
 
   
-  <img src="/LA2/Documentation/hotswap_v2_top.png" alt="Top View of Hotswap V2" width="250px">
-  <img src="/LA2/Documentation/hotswap_v2_bottom.png" alt="Bottom View of Hotswap V2" width="250px">
+  <img src="/Documentation/hotswap_v2_top.png" alt="Top View of Hotswap V2" width="250px">
+  <img src="/Documentation/hotswap_v2_bottom.png" alt="Bottom View of Hotswap V2" width="250px">
 
   
-  <img src="/LA2/Documentation/hotswap_v3_top.png" alt="Top View of Hotswap V3" width="250px">
-  <img src="/LA2/Documentation/hotswap_v3_bottom.png" alt="Bottom View of Hotswap V3" width="250px">
+  <img src="/Documentation/hotswap_v3_top.png" alt="Top View of Hotswap V3" width="250px">
+  <img src="/Documentation/hotswap_v3_bottom.png" alt="Bottom View of Hotswap V3" width="250px">
 </div>
 
 
@@ -148,8 +144,8 @@ There were three hotswap socket designs for for Cherry MX switches. Version 1 wa
 The base covers were meticulously designed to securely snap into place, ensuring the internal components within the cases remain stable and secure, preventing any movement or accidental dislodging.
 
 <div style="text-align: center;">
-  <img src="/LA2/Documentation/esp_case_base.png" alt="esp_case_base" width="300px">
-  <img src="/LA2/Documentation/macropad_case_base.png" alt="macropad_case_base" width="300px">
+  <img src="/Documentation/esp_case_base.png" alt="esp_case_base" width="300px">
+  <img src="/Documentation/macropad_case_base.png" alt="macropad_case_base" width="300px">
 </div>
 
 
@@ -157,8 +153,8 @@ The base covers were meticulously designed to securely snap into place, ensuring
 The keys, ultrasonic sensor are placed in their respective spaces are per the chasis design and connected to the ESP32 via the pins soldered onto the OLED featherwing as in the pictures below
 
 <div style="text-align: center;">
-  <img src="/LA2/Documentation/esp_connections.jpg" alt="esp_connections" width="300px">
-  <img src="/LA2/Documentation/sensor_motor_in_chasis.png" alt="macropad_connections" width="300px">
+  <img src="/Documentation/esp_connections.jpg" alt="esp_connections" width="300px">
+  <img src="/Documentation/sensor_motor_in_chasis.png" alt="macropad_connections" width="300px">
 </div>
 
 
@@ -209,13 +205,13 @@ The code has the following constants defined:
 The sensor was tested at various distances measured with a calliper and these expected distances were compared to the actual read distances from the sensor, this showed that the sensor readings were accurate. This helped ensure that the volume level that the users will set will be accurate without the need for calibration.
 
 <div style="text-align: center;">
-  <img src="/LA2/Documentation/Ultrasonic_sensor_calibration_graph_vol_control.png" alt="Ultrasonic_sensor_calibration_graph_vol_control" width="600px">
+  <img src="/Documentation/Ultrasonic_sensor_calibration_graph_vol_control.png" alt="Ultrasonic_sensor_calibration_graph_vol_control" width="600px">
 </div>
 
 ### Key Response Accuracy Test
 This test ensures that each key on the macropad functions correctly when pressed. Each key was pressed three times in a random order. This method ensures that the keys are tested under varied conditions to confirm their consistent responsiveness and accuracy. The test checks that each key press registers instantly and correctly, producing the intended output without any duplicates or errors. This approach helps guarantee the reliability and precision of the keypad for user interactions.
 <div style="text-align: center;">
-  <img src="/LA2/Documentation/key_accuracy_test.png" alt="cards_before_shuffling" width="500px" style="margin-right: 20px;">
+  <img src="/Documentation/key_accuracy_test.png" alt="cards_before_shuffling" width="500px" style="margin-right: 20px;">
 </div>
 
 
@@ -260,8 +256,8 @@ Temperature settings for the bed and nozzle also required adjustments through tr
 Challenges also arose with larger prints, such as the keypad cases, which sometimes exhibited roughness around the edges. This was attributed to incorrect object alignment or the absence of adequate support structures during printing. Adjusting these parameters in subsequent iterations helped improve the overall quality of the prints, ensuring both functional and aesthetically pleasing results. This iterative approach, characterised by continual testing and refinement, was essential for developing a reliable and user-friendly 3D-printed keypad.
 
 <div style="text-align: center;">
-  <img src="/LA2/Documentation/printer_settings.png" alt="3d_printer_settings" width="250px">
-  <img src="/LA2/Documentation/filament_settings.png" alt="filament_settings" width="400px">
+  <img src="/Documentation/printer_settings.png" alt="3d_printer_settings" width="250px">
+  <img src="/Documentation/filament_settings.png" alt="filament_settings" width="400px">
 </div>
 
 
@@ -309,7 +305,7 @@ Below is an image of a failed attempt where the key strokes weren't being regist
 
 
 <div style="text-align: center;">
-  <img src="/LA2/Documentation/failed_initial_key_stroke_logging_and_mapping.jpg" alt="failed_initial_key_stroke_logging_and_mapping" width="300px">
+  <img src="/Documentation/failed_initial_key_stroke_logging_and_mapping.jpg" alt="failed_initial_key_stroke_logging_and_mapping" width="300px">
 </div>
 
 
