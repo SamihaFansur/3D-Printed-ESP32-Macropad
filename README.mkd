@@ -1,0 +1,315 @@
+
+# COM3505 Lab Assessment 2
+
+
+# Bluetooth ESP32 Macro-pad with volume control
+Below is the macropad.
+<div style="text-align: center;">
+  <img src="/LA2/Documentation/device.jpg" alt="ESP32 Macropad" width="600px">
+</div>
+
+This is the documentation for an ESP32 macropad device with volume control, it is controlled over Wi-Fi using an interface to update the values of each key. The volume level is set using an ultrasonic sensor, and a short vibration happens to indicate volume has been set. The macropad also has an OLED screen attached for visual feedback.
+
+## Video Demonstration
+
+Here is a video demonstration of the ESP32 Macropad [ESP32 Macropad Demo](/LA2/Documentation/ESP32-Macropad-demo-video.mp4) or you can view it on this [Google Drive link](https://drive.google.com/file/d/1qyfJMB_tszr_BFeFrze45emmnz3CZ4gP/view?usp=sharing)
+
+## Software Design
+The software is composed of two components, the Interface and the Arduino code.
+
+### Interface Design
+<div style="text-align: center;">
+  <img src="/LA2/Documentation/interface_design.png" alt="Interface Design" width="600px">
+</div>
+
+The web interface must be intuitive and easy to use whilst also providing users woth visual feedback. The design must also be simple and only include necessary features, no superfluous features should be on the interface and any features added should have a minimal design that is accessible. The interface was designed to have these features: Update Button for updating the values of the macropad keys as well as a volume slider to show the volume level. The user should have control over the the key values as well as the volume level, hence the user can change and update keys and volume appropriately. A slider is used to provide a visual indication and so that the volume remains within limits (0-100%).
+
+### Arduino code
+The code must be able to interact with the interface as well as perform necessary functions. As this is an IoT device it must connect to Wi-Fi via a network. The code must also be able to update the key values, set the volume level within a certain distance. Any necessary information should also be printed to the serial monitor or displayed for the user onto the OLED screen as well as the web interface. The code must also  incorporate Firmware updates.
+
+## Hardware Design
+
+The following components were used in the hardware design of the Macropad project:
+
+- Adafruit ESP32-S3-MINI-1: The main microcontroller for this project, running the main logic and controlling the other hardware components. It has built-in Wi-Fi and Bluetooth capabilities.
+
+- Vibration Motor: A vibration motor is used to indicate that the volume level has been successfully set.
+
+- Ultrasonic Sensor: An ultrasonic sensor is used to detect the volume level the user wants within a certain range(10cm).
+
+- Adafruit OLED Featherwing(128 x 32): The OLED screen is used to display successful updates and show the key presses.
+
+- 100Ω Resistor: Connected in series with the vibration motor to manage the current flowing through the motor, thereby extending its lifespan and preventing damage.
+
+- Cherry MX switches: For keys on the macropad.
+
+- Diodes(Model 1N4148): Connected to the row wire on the hotswap sockets of each macropad key to prevent ghosting. They block the flow in one direction.That way the controller can measure a flow from one specific pin to another. Let’s say a column pin to a row pin. That specific combination of column and row is unique in the matrix and the controller can emit the configured keycode signal to the computer. 
+
+- Breadboard: Used for prototyping and connecting the various components initially before soldering and crimping wires together to attach onto the ESP32.
+
+These components are connected together along with the 3D printed chassis as shown in the relevant images in the Hardware connections section below.
+
+
+### Hardware Connections
+
+The following hardware connections are used within the code:
+
+Create a BleKeyboard object for bluetooth connectivity: `BleKeyboard bleKeyboard("ESP32 Keyboard", "ESP32", 100);`
+
+Create a WIRE object and initialise Adafruit OLED Featherwing: `#define WIRE Wire`, `Adafruit_SSD1306 display = Adafruit_SSD1306(128, 32, &WIRE);`
+
+Please make the following connections:
+- Connect the `TRIGGER_PIN` of the HC-SR04 ultrasonic sensor to GPIO pin A0 on the ESP32 microcontroller.
+- Connect the `ECHO_PIN` of the HC-SR04 ultrasonic sensor to GPIO pin A2 on the ESP32 microcontroller.
+- Connect the `rowPins` to GPIO pins 12, 13 on the ESP32 microcontroller.
+- Connect the `colPins` to GPIO pins 5, 9, 10 on the ESP32 microcontroller.
+- Connect the  `motorPin` to GPIO pin 11 on the ESP32 microcontroller.
+- Solder the male pin headers onto the outside rows of the OLED featherwing and solder 90 degree male header pins on the remaining two rows. Then place the OLED onto the esp32 making sure each of the OLED and ESP32 map to each other. This reduces the need to connect the OLED to the ESP32 using jumper wires.
+
+The code utilises the BleKeyboard library to provide the Bluetooth functionality.
+
+Note: The following line within the BleKeyboard library `pSecurity->setAuthenticationMode(ESP_LE_AUTH_REQ_SC_MITM_BOND);` must be replaced with `pSecurity->setAuthenticationMode(ESP_LE_AUTH_BOND);` in order for the Bluetooth to function correctly.
+
+Lastly, please refer to the hardware documentation or pinout diagrams of your specific microcontroller board and ensure the GPIO pin mappings are correct.
+
+**Key Setup**
+
+The macropad makes use of key mapping to determine which key is being pressed.
+
+<div style="text-align: center;">
+  <img src="/LA2/Documentation/key setup.png" alt="Hotswap socket setup" width="300px">
+</div>
+
+The above image shows how each hotswap socket is setup. These sockets allows insertion of switches without soldering. The diode(marked side touches the wire that connects to the GPIO pin) touches the row wire. The row wire connects all switches (through their diodes) in the same row to a single input pin on the microcontroller. This setup helps in managing the matrix efficiently, as each row can be scanned to detect which key was pressed. The other pin of each switch (not connected to a diode) is connected together using another wire, Column wire. The column wire connects all the switches in the same column directly to another GPIO pin on the microcontroller. This setup can be seen in the image below.
+
+<div style="text-align: center;">
+  <img src="/LA2/Documentation/keys_placed.JPG" alt="Keys setup" width="300px">
+</div>
+
+Note: It is cruical that the diode touches the row wire, can the tiny wire that connects to the switch also touches the column wire at all times. Also important to make sure is that none of the wires for each key touches the wires of another key as this will cause interruption of signals being sent.
+
+**Ultrasonic Sensor and Vibration motor**
+
+The ultrasonic sensor is attatched onto the 90 degree male header pins on the OLED featherwing using female-female jumper wires so that it can be mounted inside the chassis directly without the need of a breadboard, this is to allow for a compact design of the macropad. 
+
+The Vibration motor is attached onto one of the input pins on the OLED featherwing and the other is connected to the ground pin. The leg of the motor that connects to this input pin also has a 100Ω resistor attached to it in series.
+
+<div style="text-align: center;">
+  <img src="/LA2/Documentation/sensor_and_motor.png" alt="ultransonic_sensor_and_vibration_motor_setup" width="300px">
+</div>
+
+The ultrasonic sensor and vibration motor can easily fit within the chassis due to the chasis design and sticky bottom of the vibration motor as shown below.
+<div style="text-align: center;">
+  <img src="/LA2/Documentation/sensor_motor_in_chasis.png" alt="ultrasonic_sensor_vibe_motor_in_chasis" width="300px">
+</div>
+
+
+## 3D Printed Chassis
+
+The main structure of the card shuffler is a 3D printed chassis, designed to hold the cards and incorporate the mechanical parts needed for shuffling. The design should be simplistic and immediately obvious to the user how it functions such as where to put the cards. 
+
+### Chassis Design
+The final components were designed using online Tinkercad software and printed using a P1P Bambu Labs 3D printer using Bambu Studio Slicer Software. The components were printed on a smooth 3D printing bed to ensure smoothness allowing for the lowest friction whilst using the device. All components were designed using measurements from digital vernier callipers so that they have a high resolution of +- 0.05 mm. The 3D printer has a resolution of 0.08mm vertically and 0.42mm horizontally.
+
+The design is made up of 5 different components:
+
+**Macropad Case**
+The macropad case contains the sensor, motor, and all the keys. The design is compact, yet it has enough space to allow for each wire connections. The design of the Macropad case features a partial wall on one side to facilitate the routing of wires from this case to the ESP32 and OLED case.The design also required to accurately size the cutout for the ultrasonic sensor to ensure a snug fit without it being too loose.
+
+<div style="text-align: center;">
+  <img src="/LA2/Documentation/macropad_case_top_view.png" alt="macropad_case_top_view" width="300px">
+  <img src="/LA2/Documentation/macropad_case_side_view.png" alt="macropad_case_side_view" width="300px">
+</div>
+
+**ESP32 and OLED Case**
+This second case houses the ESP32 and the OLED, which is mounted on top. It features a rectangular cutout to ensure the OLED screen is visible. Additionally, this case includes a partial wall on the side that connects to the Macropad case, designed to facilitate wire routing between the two cases. It was also crucial to accurately size the cutout for the USB-C port on the ESP32 to ensure a snug fit for the cable without it being too loose.
+<div style="text-align: center;">
+  <img src="/LA2/Documentation/esp32_case_top.png" alt="esp32_case_top" width="300px">
+  <img src="/LA2/Documentation/esp_case_side.png" alt="esp_case_side" width="250px">
+</div>
+
+**Hotswap sockets**
+There were three hotswap socket designs for for Cherry MX switches. Version 1 was very ineffective as the diode and the wires could not be connected properly. Version 2 was better but still less effective as it required multiple parts(the socket and 2 covers to hold the wires in place). However, everytime a key got pressed the parts would come apart as they were just fitted together or the wires within the hotswap socket wouldnt touch as appropriate causing loss of input signals. So Version 2 was redesigned to be Version 3, as this design ensure that the wires keep intact and touch as appropriate and also that the parts do not come apart.
+<div style="text-align: center;">
+  <img src="/LA2/Documentation/hotswap_v1_top.png" alt="Top View of Hotswap V1" width="250px">
+  <img src="/LA2/Documentation/hotswap_v1_bottom.png" alt="Bottom View of Hotswap V1" width="250px">
+
+  
+  <img src="/LA2/Documentation/hotswap_v2_top.png" alt="Top View of Hotswap V2" width="250px">
+  <img src="/LA2/Documentation/hotswap_v2_bottom.png" alt="Bottom View of Hotswap V2" width="250px">
+
+  
+  <img src="/LA2/Documentation/hotswap_v3_top.png" alt="Top View of Hotswap V3" width="250px">
+  <img src="/LA2/Documentation/hotswap_v3_bottom.png" alt="Bottom View of Hotswap V3" width="250px">
+</div>
+
+
+**Base covers for both cases**
+The base covers were meticulously designed to securely snap into place, ensuring the internal components within the cases remain stable and secure, preventing any movement or accidental dislodging.
+
+<div style="text-align: center;">
+  <img src="/LA2/Documentation/esp_case_base.png" alt="esp_case_base" width="300px">
+  <img src="/LA2/Documentation/macropad_case_base.png" alt="macropad_case_base" width="300px">
+</div>
+
+
+### Assemblling the device
+The keys, ultrasonic sensor are placed in their respective spaces are per the chasis design and connected to the ESP32 via the pins soldered onto the OLED featherwing as in the pictures below
+
+<div style="text-align: center;">
+  <img src="/LA2/Documentation/esp_connections.jpg" alt="esp_connections" width="300px">
+  <img src="/LA2/Documentation/sensor_motor_in_chasis.png" alt="macropad_connections" width="300px">
+</div>
+
+
+
+## Required Libraries
+
+The program uses the following libraries:
+- `WebServer.h`: Facilitates the creation of a basic HTTP server on the ESP32, allowing for web-based interactions. More information is available [here](https://github.com/espressif/arduino-esp32/tree/master/libraries/WebServer)
+- `WiFi.h`:  This library enables the ESP32 to connect to Wi-Fi networks and establish its own access point. More information is available [here](https://github.com/espressif/arduino-esp32/tree/master/libraries/WiFi)
+- `Wire.h`: This library is used for managing I2C communications, which are used for communicating with the OLED Featherwing. More information is available [here](https://www.arduino.cc/en/Reference/Wire)
+- `BleKeyboard.h`: This library allows the ESP32 to act as a Bluetooth Low Energy (BLE) keyboard, making it possible to send keystrokes to a BLE-compatible device [here](https://github.com/T-vK/ESP32-BLE-Keyboard)
+- `NewPing.h`: This library is designed for easy and efficient interfacing with ultrasonic sensors like HC-SR04. It simplifies measuring distances by providing functions that handle the timing and signal processing required to interpret the sensor's outputs. More information is available [here](https://www.arduino.cc/reference/en/libraries/newping/)
+- `Adafruit_GFX.h`: This is a graphics library provided by Adafruit that works with various displays to render text, geometric shapes, and bitmaps. It serves as the core graphics engine on which other specific display libraries build. More information is available [here](https://github.com/adafruit/Adafruit-GFX-Library)
+- `Adafruit_SSD1306.h`: A library specifically for controlling SSD1306 OLED displays. It builds on the `Adafruit_GFX` library, adding functions for initialising the display and controlling its content. This is particularly useful for adding a small, high-contrast visual display to projects. More information is available [here](https://github.com/adafruit/Adafruit_SSD1306)
+- `Adafruit BusIO`: This library is essential for interfacing with various I2C or SPI devices, particularly when using Adafruit's extensive range of sensors and peripherals. It simplifies the management of digital communication lines, ensuring consistent and reliable data transmission. More information is available [here](https://github.com/adafruit/Adafruit_BusIO)
+
+
+## Hardware requirements
+- ESP32 microcontroller or other WiFi-enabled microcontroller
+- HC-SR04 ultrasonic sensor
+- Adafruit Vibration Motor
+- Adafruit OLED Featherwing (128 x 32)
+- 100Ω Resistor
+- Cherry MX switches
+- Diodes (Model 1N4148)
+- 3D Printed Cases and hotswap sockets (Stl files can be found in the 3D Model Respository Folder)
+- Jumper wires (female-female, male-female, 2 female-female)
+- Male Pin Headers
+- Single Core Wires
+
+
+## Software Requirements
+- Arduino IDE (or any compatible environment, e.g. vscode with platformio extension)
+- Necessary libraries installed as mentioned in the Required Libraries section
+
+
+## Constants
+
+The code has the following constants defined:
+- `ssid`: Sets the SSID for the ESP32's Wi-Fi access point.
+- `password`: Defines the password for accessing the ESP32's Wi-Fi access point.
+- `ROWS`: Indicates the number of rows on the macropad.
+- `COLS`: Indicates the number of columns on the macropad.
+
+## Testing
+
+### Ultrasonic Sensor Testing
+The sensor was tested at various distances measured with a calliper and these expected distances were compared to the actual read distances from the sensor, this showed that the sensor readings were accurate. This helped ensure that the volume level that the users will set will be accurate without the need for calibration.
+
+<div style="text-align: center;">
+  <img src="/LA2/Documentation/Ultrasonic_sensor_calibration_graph_vol_control.png" alt="Ultrasonic_sensor_calibration_graph_vol_control" width="600px">
+</div>
+
+### Key Response Accuracy Test
+This test ensures that each key on the macropad functions correctly when pressed. Each key was pressed three times in a random order. This method ensures that the keys are tested under varied conditions to confirm their consistent responsiveness and accuracy. The test checks that each key press registers instantly and correctly, producing the intended output without any duplicates or errors. This approach helps guarantee the reliability and precision of the keypad for user interactions.
+<div style="text-align: center;">
+  <img src="/LA2/Documentation/key_accuracy_test.png" alt="cards_before_shuffling" width="500px" style="margin-right: 20px;">
+</div>
+
+
+### Acceptance Testing
+Given the constraints and nature of this Arduino-based project, unit testing was deemed impractical as there is no standard built-in framework for unit testing Arduino C++ code, especially when it is heavily reliant on hardware interactions.
+
+Hence, acceptance testing was chosen as the most suitable testing method. It assesses the complete system, both hardware and software components, ensuring all functional requirements are met and the system performs as expected in real-world usage. This approach aligns better with the project's objectives and constraints.
+
+**Acceptance Criteria:**
+- Print out key values.
+- Write directly onto the laptop via Bluetooth.
+- The user should be able to assign keys/macros to keys on macropad.
+- Key values printed out should print their assigned values
+- Keys should output their values precisely as many times as they are pressed.
+- Have a screen to show user updates rather than just the interface.
+- Ultrsonic sensor should correctly set volume levels.
+- Provide users with haptic feedback once volume level is set.
+- The interface should be easy to use, intuitive and in like with Accessibility guidelines
+
+The project has undergone comprehensive user-centric testing to ensure it aligns with the expectations and specifications anticipated by the user. Moreover, the project has also been tested to ensure it meets the acceptance criteria listed above.
+
+### Overall Testing
+|Test No.|Description|Expected Result|Actual Result|Successful Implementation?|
+|:----|:----|:----|:----|:----|
+|1|Test WiFi connectivity: Verify device connectivity to WiFi network | Connection must be successful and stable | Connection was successful and stable | Yes |
+|2|Test WiFi Auto-Reconnect: Ensure the device reconnects to the network after losing connectivity|Expected to reconnect once network is restored|Reconnected successfully after pressing the reset button|Yes|
+|3|Test Ultrasonic Sensor Functionality: Confirm the sensor accurately measures and reports distances|Should return the correct distance|Accurately returned the correct distance|Yes|
+|4|Test Vibration Motor Operation: Verify the motor operates smoothly as intended|Motor should operate error-free|Motor functioned smoothly without errors|Yes|
+|5|Test updateKeys() function: Verify that key values update when Update button pressed on the interface|Key values should be updated with visual feedback to indicate successful update|Key values were updated and visual feedback was shown|Yes|
+|6|Test the interface's connection with the device: Verify the UI can successfully interact with the device|Successful interaction with the device|Interaction with the device was successful|Yes|
+|7|Test Ultrasonic Sensor calibration: Verify if the sensor needs calibration for accurate distance measurement|The sensor should be correctly calibrated and provide accurate distance readings|Sensor did not require calibration and provided accurate readings|Yes|
+|8|Test the responsiveness of the interface: Verify the interface reacts promptly to user interactions|The interface should respond quickly to all user interactions|The interface responded quickly to all user interactions|Yes|
+|9|Test the responsiveness of key presses: Verify that the key values are printed out promptly|The key values should be printed out promptly|Key valus printed out promptly|Yes|
+|10|Test that correct key values are printed out: Verify that the key values are as intended and there are not printed more than once for 1 key stroke|Key values should print once for one key stroke, and should print their respective value|Keys print their respective value once for every key stroke|Yes|
+
+
+## 3D Printing Iterative Process
+The 3D printing process for creating a precise and functional keypad involved several iterations to fine-tune the design and printing settings for optimal quality. Key to this process was determining the correct layer height, crucial for achieving high-quality prints due to the intricate designs of the hotswap sockets. After experimentation, an optimal layer height of 0.08mm was established using a smooth, cool build plate. A textured plate was avoided as it negatively impacted the print quality, which needed to be smooth to reduce friction for users operating the keypad and to ensure that the hotswap sockets were printed with the necessary precision for easy insertion of keys and switches.
+
+Temperature settings for the bed and nozzle also required adjustments through trial and error. Initially, the PLA material used for the chassis warped significantly due to a too-low bed temperature, leading to poor fit and instability when the chassis was assembled. This issue was resolved by increasing the hot bed temperature to 65 degrees Celsius, which allowed the chassis components to fit together correctly and sit flat on surfaces.
+
+Challenges also arose with larger prints, such as the keypad cases, which sometimes exhibited roughness around the edges. This was attributed to incorrect object alignment or the absence of adequate support structures during printing. Adjusting these parameters in subsequent iterations helped improve the overall quality of the prints, ensuring both functional and aesthetically pleasing results. This iterative approach, characterised by continual testing and refinement, was essential for developing a reliable and user-friendly 3D-printed keypad.
+
+<div style="text-align: center;">
+  <img src="/LA2/Documentation/printer_settings.png" alt="3d_printer_settings" width="250px">
+  <img src="/LA2/Documentation/filament_settings.png" alt="filament_settings" width="400px">
+</div>
+
+
+## Self-Assessment
+
+Reflecting on this project, there are several areas where improvements can be made in future iterations and other projects.
+
+### Hardware Understanding
+Enhanced knowledge and understanding of the hardware used in the project can lead to improved design decisions and problem-solving capabilities. For example, in this project, there was an issue where the vibration motor continued to vibrate continuously instead of just for a set period after the volume level was adjusted. Initially, a brownout was suspected, but after a thorough review of the motor's documentation, this was ruled out as the cause. This situation highlighted the importance of having a deep understanding of the vibration motor's requirements and operational conditions. Moving forward, I will ensure to thoroughly review all hardware documentation before incorporating components into the design to prevent similar issues.
+
+### Documentation
+Effective documentation practices are essential not only for project management but also for troubleshooting and ongoing development. Throughout this project, maintaining detailed documentation from the early stages, rather than towards the end, proved beneficial for reassembling components during development. For instance, referring back to previously taken pictures helped identify which ports were connected to specific components. Moving forward, I plan to consistently update documentation during the development process, recording decisions, changes, and critical specifications. This approach has significantly saved time and streamlined the project workflow.
+
+
+### Future Improvements
+
+**Key value assignment**
+The current key value assignment on the macropad functions as intended but is relatively basic, assigning only one character per key. Ideally, a macropad should have the capability to assign multiple characters or execute various actions, such as launching a Discord shortcut. Enhancing this functionality would make the macropad more versatile and useful for a broader range of applications.
+
+**Interface Design**
+The current project utilises HTML strings and JavaScript, which, although functional, present challenges, especially as files grow larger and require a more modular approach. Future iterations of the project could greatly benefit from investigating alternative interface and code designs, such as implementing an aRest interface, to improve scalability and maintainability.
+
+
+### What went well?
+
+**Meeting Project Specifications**
+Overall, the project successfully met its specifications, resulting in the creation of a functional Bluetooth Macropad IoT device. The device is capable of assigning keys different values, using the macropad as a keyboard to type onto the laptop, set the volume and provides visual feedback.
+
+**Reliable Chassis Design**
+The device features a robust chassis that has maintained its excellent condition through extensive testing. Thanks to its 3D-printed construction, the chassis offers easy maintainability and the flexibility to scale or upgrade. Components can be readily replaced or modified, allowing for seamless future enhancements or adaptations to suit various design preferences and incorporate new functionalities.
+
+**Functional User Interface**
+The device features a straightforward and functional user interface. Users can effortlessly assign new values to keys and adjust the volume using the ultrasonic sensor. Enhanced by both visual and haptic feedback, the user experience is significantly improved.
+
+
+### What didn't go well?
+
+**Incorrect OLED Featherwing PCB manufacturing**
+After soldering and crimping wires to connect to the pins on the OLED featherwing, I encountered an issue where my sensor ceased functioning. I spent considerable time desoldering and resoldering, crimping new wires, and reverting to the previous setup. Ultimately, I conducted a continuity test and consulted with the IEE lab, which confirmed that the PCB did not have a connection between the rows on PIN 6 on the featherwing.
+
+**Key mapping to work initially**
+I spent a significant amount of time to configuring the key mapping, particularly because I was not using a custom PCB. Initially, my primary challenge was to get a single key to register a keystroke. After extensive troubleshooting, I discovered that the issue was due to the keyswap socket, which was not securing the wires properly. This realisation came after a lengthy period of effort focused on other potential causes and my lack of experience with hardware. Below is an image of me trying to get the key mapping working.
+
+Below is an image of a failed attempt where the key strokes weren't being registered. As you can probably tell the wired don't look like they've been held securely and tightly in place.
+
+
+<div style="text-align: center;">
+  <img src="/LA2/Documentation/failed_initial_key_stroke_logging_and_mapping.jpg" alt="failed_initial_key_stroke_logging_and_mapping" width="300px">
+</div>
+
+
